@@ -2,86 +2,301 @@
  <html lang="es">
  <head>
   <meta charset="UTF-8">
-  <title>Información Recibida</title>
+  <title>Registro de Miembros del Equipo</title>
   <style>
   body {
   font-family: Arial, sans-serif;
+  padding: 30px;
   background-color: #f9f9f9;
-  text-align: center;
-  padding: 50px;
   }
 
-  .container {
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin: 20px auto;
-  max-width: 600px;
+  /* Estilos para el contenedor del logo */
+  .logo-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
   }
 
-  /* Estilos para los logos */
-  .logo-top {
-  width: 150px;
-  margin-bottom: 20px;
+  /* Estilos para la imagen del logo */
+  .logo-small {
+  width: 100px;
   }
 
-  .logo-bottom {
-  width: 150px;
+  h2 {
+  color: #333;
+  margin-top: 60px;
+  }
+
+  .warning {
+  color: red;
+  margin-top: 10px;
+  display: none;
+  }
+
+  table {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 20px;
   }
 
-  h1 {
-  color: #007BFF;
+  th,
+  td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
   }
 
-  p {
-  font-size: 18px;
-  color: #333;
+  input {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+  }
+
+  input.invalid {
+  border: 2px solid red;
+  }
+
+  button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007BFF;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  }
+
+  button:hover {
+  background-color: #0056b3;
+  }
+
+  .notice {
+  font-size: 14px;
+  color: gray;
+  margin-top: 10px;
+  }
+
+  /* Estilos para el cuadro de diálogo de confirmación */
+  .confirm-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  }
+
+  .confirm-dialog {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  }
+
+  .confirm-buttons {
+  margin-top: 20px;
+  }
+
+  .confirm-buttons button {
+  margin: 0 10px;
+  padding: 10px 15px;
+  cursor: pointer;
   }
   </style>
  </head>
  <body>
 
-  <div class="container">
-  <img src="logocarreramx.png" alt="Logo Arriba" class="logo-top">
+  <div class="logo-container">
+  <img src="logo.png" alt="Logotipo Empresa" class="logo-small">
+  </div>
 
-  <h1>Información Recibida</h1>
-  <p id="mensajeConfirmacion"></p>
+  <h2 id="bienvenida">Bienvenido Equipo</h2>
+  <p>Registro de Miembros del Equipo. Por favor, llena todos los campos. Los nombres y apellidos deben coincidir con la identificación oficial.</p>
 
-  <img src="logo.png" alt="Logo Abajo" class="logo-bottom">
+  <div class="warning" id="advertenciaCampos">⚠️ Por favor, completa todos los campos.</div>
+
+  <form id="formRegistro">
+  <table>
+  <thead>
+  <tr>
+  <th>Rol</th>
+  <th>Nombre</th>
+  <th>Apellido Paterno</th>
+  <th>Apellido Materno</th>
+  <th>No. Hard Card</th>
+  <th>Correo Electrónico</th>
+  </tr>
+  </thead>
+  <tbody id="tablaCuerpo">
+  </tbody>
+  </table>
+
+  <button type="button" id="enviarFormularioBtn" onclick="validarYEnviar()">Enviar Información</button>
+  </form>
+
+  <div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-dialog">
+  <p>Estás a punto de enviar el formulario sin todos los datos completos. ¿Continuar?</p>
+  <div class="confirm-buttons">
+  <button type="button" onclick="confirmarEnvio()">Continuar</button>
+  <button type="button" onclick="cancelarEnvio()">Cancelar</button>
+  </div>
+  </div>
   </div>
 
   <script>
-  const nombreResponsable = localStorage.getItem("nombreResponsable") || "Desconocido";
-  const nombreEquipo = localStorage.getItem("nombreEquipo") || "Desconocido";
-  const numeroAuto = localStorage.getItem("numeroAuto") || "Desconocido";
+  const roles = [
+  "Piloto",
+  "Copiloto",
+  "Jefe de Equipo",
+  "Mecánico 1",
+  "Mecánico 2",
+  "Ingeniero",
+  "Logística",
+  "Prensa",
+  "Invitado 1",
+  "Invitado 2",
+  "Otro 1",
+  "Otro 2",
+  ];
 
-  const mensaje = `
-   Información Recibida:
-   <br><br>
-   Responsable del llenado: <b><span class="math-inline">\{nombreResponsable\}</b\>
-<br\>
-Equipo\: <b\></span>{nombreEquipo}</b>
-   <br>
-   Auto: <b>${numeroAuto}</b>
-   <br><br>
-   Quedó registrado.
-  `;
+  const nombreEquipo = localStorage.getItem("nombreEquipo") || "Sin nombre";
+  const nombreResponsable = localStorage.getItem("nombreResponsable") || "Sin responsable";
+  const numeroAuto = localStorage.getItem("numeroAuto") || "Sin número";
 
-  document.getElementById("mensajeConfirmacion").innerHTML = mensaje;
+  document.getElementById("bienvenida").textContent = `Equipo: ${nombreEquipo} - Responsable: ${nombreResponsable} - Auto: ${numeroAuto}`;
 
-  // Limpiar los datos de localStorage (opcional, ya se hace en registro.html)
+  const tablaCuerpo = document.getElementById("tablaCuerpo");
+  const confirmOverlay = document.getElementById("confirmOverlay");
+  const enviarFormularioBtn = document.getElementById("enviarFormularioBtn");
+
+  // Función para crear las filas de la tabla dinámicamente
+  function crearFilasTabla() {
+  roles.forEach((rol) => {
+  const fila = document.createElement("tr");
+
+  const celdaRol = document.createElement("td");
+  celdaRol.textContent = rol;
+  fila.appendChild(celdaRol);
+
+  for (let i = 0; i < 5; i++) {
+  const celda = document.createElement("td");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = `<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}`; // Nombre para identificar el campo
+  celda.appendChild(input);
+  fila.appendChild(celda);
+  }
+
+  tablaCuerpo.appendChild(fila);
+  });
+  }
+
+  crearFilasTabla(); // Llama a la función para generar las filas
+
+  let datosFormulario; // Variable global para almacenar los datos del formulario
+
+  function validarYEnviar() {
+  console.log("validarYEnviar() llamada");
+  const inputs = document.querySelectorAll("input");
+  let algunoVacio = false;
+
+  inputs.forEach((input) => {
+  if (!input.value.trim()) {
+  input.classList.add("invalid");
+  algunoVacio = true;
+  } else {
+  input.classList.remove("invalid");
+  }
+  });
+
+  if (algunoVacio) {
+  console.log("Campos vacíos detectados, mostrando confirmación");
+  mostrarConfirmacion();
+  } else {
+  console.log("No hay campos vacíos, enviando formulario");
+  enviarDatosAlServidor(); // Llamar directamente a la función de envío
+  }
+  }
+
+  function mostrarConfirmacion() {
+  console.log("mostrarConfirmacion() llamada");
+  confirmOverlay.style.display = "flex";
+  }
+
+  function cancelarEnvio() {
+  console.log("cancelarEnvio() llamada");
+  confirmOverlay.style.display = "none";
+  }
+
+  function confirmarEnvio() {
+  console.log("confirmarEnvio() llamada");
+  confirmOverlay.style.display = "none";
+  enviarDatosAlServidor(); // Llamar a la función de envío después de confirmar
+  }
+
+  function enviarDatosAlServidor() {
+  console.log("enviarDatosAlServidor() llamada");
+  const inputs = document.querySelectorAll("input");
+  const miembros = [];
+
+  roles.forEach((rol) => {
+  const camposRol = [];
+  for (let i = 0; i < 5; i++) {
+  const input = document.querySelector(`input[name="<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}"]`);
+  camposRol.push(input.value.trim());
+  }
+  miembros.push({
+  rol: rol,
+  nombre: camposRol[0],
+  apellidoPaterno: camposRol[1],
+  apellidoMaterno: camposRol[2],
+  noHardCard: camposRol[3],
+  email: camposRol[4],
+  });
+  });
+
+  const datos = {
+  nombreEquipo: nombreEquipo,
+  nombreResponsable: nombreResponsable,
+  numeroAuto: numeroAuto,
+  miembros: miembros,
+  };
+
+  datosFormulario = datos;
+
+  console.log("Datos a enviar:", JSON.stringify(datos, null, 2));
+
+  fetch("TU_URL_DE_APPS_SCRIPT", {
+  method: "POST",
+  headers: {
+  "Content-Type": "application/json",
+  },
+  body: JSON.stringify(datos),
+  })
+  .then((response) => response.json())
+  .then((data) => {
+  console.log("Respuesta del servidor:", data);
+  if (data.result === "success") {
   localStorage.removeItem("nombreEquipo");
   localStorage.removeItem("nombreResponsable");
   localStorage.removeItem("numeroAuto");
-
-  // Evitar que el usuario vuelva atrás con el botón del navegador
-  history.pushState(null, document.title, location.href);
-  window.addEventListener('popstate', function(event) {
-  history.pushState(null, document.title, location.href);
+  window.location.href = "confirmacion.html";
+  } else {
+  alert("Error al guardar los datos: " + data.error);
+  }
+  })
+  .catch((error) => {
+  console.error("Error:", error);
+  alert("Error al enviar los datos.");
   });
+  }
   </script>
-
  </body>
  </html>
