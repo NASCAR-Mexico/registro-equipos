@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+ <html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <title>Registro de Miembros del Equipo</title>
+  <style>
+  body {
+  font-family: Arial, sans-serif;
+  padding: 30px;
+  background-color: #f9f9f9;
+  }
+
+  h2 {
+  color: #333;
+  }
+
+  .warning {
+  color: red;
+  margin-top: 10px;
+  display: none;
+  }
+
+  table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  }
+
+  th,
+  td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+  }
+
+  input {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+  }
+
+  input.invalid {
+  border: 2px solid red;
+  }
+
+  button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007BFF;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  }
+
+  button:hover {
+  background-color: #0056b3;
+  }
+
+  .notice {
+  font-size: 14px;
+  color: gray;
+  margin-top: 10px;
+  }
+
+  /* Estilos para el cuadro de diálogo de confirmación */
+  .confirm-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegura que esté por encima de todo */
+  }
+
+  .confirm-dialog {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  }
+
+  .confirm-buttons {
+  margin-top: 20px;
+  }
+
+  .confirm-buttons button {
+  margin: 0 10px;
+  padding: 10px 15px;
+  cursor: pointer;
+  }
+  </style>
+ </head>
+ <body>
+
+  <h2 id="bienvenida">Bienvenido Equipo</h2>
+  <p>Registro de Miembros del Equipo. Por favor, llena todos los campos. Los nombres y apellidos deben coincidir con la identificación oficial.</p>
+
+  <div class="warning" id="advertenciaCampos">⚠️ Por favor, completa todos los campos.</div>
+
+  <form id="formRegistro">
+  <table>
+  <thead>
+  <tr>
+  <th>Rol</th>
+  <th>Nombre</th>
+  <th>Apellido Paterno</th>
+  <th>Apellido Materno</th>
+  <th>No. Hard Card</th>
+  <th>Correo Electrónico</th>
+  </tr>
+  </thead>
+  <tbody id="tablaCuerpo">
+  </tbody>
+  </table>
+
+  <button type="button" onclick="validarYEnviar()">Enviar Información</button>
+  </form>
+
+  <div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-dialog">
+  <p>Estás a punto de enviar el formulario sin todos los datos completos. ¿Continuar?</p>
+  <div class="confirm-buttons">
+  <button onclick="enviarFormulario()">Continuar</button>
+  <button onclick="cancelarEnvio()">Cancelar</button>
+  </div>
+  </div>
+  </div>
+
+  <script>
+  const roles = [
+  "Piloto",
+  "Copiloto",
+  "Jefe de Equipo",
+  "Mecánico 1",
+  "Mecánico 2",
+  "Ingeniero",
+  "Logística",
+  "Prensa",
+  "Invitado 1",
+  "Invitado 2",
+  "Otro 1",
+  "Otro 2",
+  ];
+
+  const nombreEquipo = localStorage.getItem("nombreEquipo") || "Sin nombre";
+  const nombreResponsable = localStorage.getItem("nombreResponsable") || "Sin responsable";
+  const numeroAuto = localStorage.getItem("numeroAuto") || "Sin número";
+
+  document.getElementById("bienvenida").textContent = `Equipo: ${nombreEquipo} - Responsable: ${nombreResponsable} - Auto: ${numeroAuto}`;
+
+  const tablaCuerpo = document.getElementById("tablaCuerpo");
+  const confirmOverlay = document.getElementById("confirmOverlay");
+
+  // Función para crear las filas de la tabla dinámicamente
+  function crearFilasTabla() {
+  roles.forEach((rol) => {
+  const fila = document.createElement("tr");
+
+  const celdaRol = document.createElement("td");
+  celdaRol.textContent = rol;
+  fila.appendChild(celdaRol);
+
+  for (let i = 0; i < 5; i++) {
+  const celda = document.createElement("td");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = `<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}`; // Nombre para identificar el campo
+  celda.appendChild(input);
+  fila.appendChild(celda);
+  }
+
+  tablaCuerpo.appendChild(fila);
+  });
+  }
+
+  crearFilasTabla(); // Llama a la función para generar las filas
+
+  let datosFormulario; // Variable global para almacenar los datos del formulario
+
+  function validarYEnviar() {
+  const inputs = document.querySelectorAll("input");
+  let algunoVacio = false;
+
+  inputs.forEach((input) => {
+  if (!input.value.trim()) {
+  input.classList.add("invalid");
+  algunoVacio = true;
+  } else {
+  input.classList.remove("invalid");
+  }
+  });
+
+  if (algunoVacio) {
+  mostrarConfirmacion();
+  } else {
+  enviarFormulario();
+  }
+  }
+
+  function mostrarConfirmacion() {
+  confirmOverlay.style.display = "flex";
+  }
+
+  function cancelarEnvio() {
+  confirmOverlay.style.display = "none";
+  }
+
+  function enviarFormulario() {
+  confirmOverlay.style.display = "none"; // Oculta la confirmación si estaba visible
+  const inputs = document.querySelectorAll("input");
+  const miembros = [];
+
+  roles.forEach((rol) => {
+  const camposRol = [];
+  for (let i = 0; i < 5; i++) {
+  const input = document.querySelector(`input[name="<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}"]`);
+  camposRol.push(input.value.trim());
+  }
+  miembros.push({
+  rol: rol,
+  nombre: camposRol[0],
+  apellidoPaterno: camposRol[1],
+  apellidoMaterno: camposRol[2],
+  noHardCard: camposRol[3],
+  email: camposRol[4],
+  });
+  });
+
+  const datos = {
+  nombreEquipo: nombreEquipo,
+  nombreResponsable: nombreResponsable,
+  numeroAuto: numeroAuto,
+  miembros: miembros,
+  };
+
+  datosFormulario = datos; // Guarda los datos en la variable global
+
+  console.log("Datos a enviar:", JSON.stringify(datos, null, 2)); // Para depuración
+
+  fetch("TU_URL_DE_APPS_SCRIPT", { // Reemplazar con la URL del script de Apps Script
+  method: "POST",
+  headers: {
+  "Content-Type": "application/json",
+  },
+  body: JSON.stringify(datos),
+  })
+  .then((response) => response.json())
+  .then((data) => {
+  console.log("Respuesta del servidor:", data);
+  if (data.result === "success") {
+  localStorage.removeItem("nombreEquipo");
+  localStorage.removeItem("nombreResponsable");
+  localStorage.removeItem("numeroAuto");
+  window.location.href = "confirmacion.html";
+  } else {
+  alert("Error al guardar los datos: " + data.error);
+  }
+  })
+  .catch((error) => {
+  console.error("Error:", error);
+  alert("Error al enviar los datos.");
+  });
+  }
+  </script>
+ </body>
+ </html>
