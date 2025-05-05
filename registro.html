@@ -10,21 +10,8 @@
   background-color: #f9f9f9;
   }
 
-  /* Estilos para el contenedor del logo */
-  .logo-container {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  }
-
-  /* Estilos para la imagen del logo */
-  .logo-small {
-  width: 100px;
-  }
-
   h2 {
   color: #333;
-  margin-top: 60px;
   }
 
   .warning {
@@ -43,7 +30,6 @@
   td {
   padding: 8px;
   border: 1px solid #ddd;
-  text-align: left;
   }
 
   input {
@@ -112,14 +98,11 @@
  </head>
  <body>
 
-  <div class="logo-container">
-  <img src="logo.PNG" alt="Logotipo Empresa" class="logo-small">
-  </div>
-
   <h2 id="bienvenida">Bienvenido Equipo</h2>
-  <p>Registro de Miembros del Equipo. Por favor, llena todos los campos. Los nombres y apellidos deben coincidir con la identificación oficial.</p>
+  <p>Registro de Miembros del Equipo. Deberás llenar todos los espacios. El nombre y apellido deben aparecer igual que en la identificación oficial, ya que se deberá presentar para recibir el pase correspondiente. El correo electrónico puede ser el mismo para todos los integrantes o el personal.</p>
 
-  <div class="warning" id="advertenciaCampos">⚠️ Por favor, completa todos los campos.</div>
+  <div class="warning" id="advertenciaCampos">⚠️ Los campos vacíos no podrán llenarse de nuevo.</div>
+  <div class="notice">Al presionar ENVIAR, aceptas que la información capturada es correcta.</div>
 
   <form id="formRegistro">
   <table>
@@ -137,14 +120,14 @@
   </tbody>
   </table>
 
-  <button type="button" onclick="validarYEnviar()">Enviar Información</button>
+  <button type="button" onclick="validarYEnviar()">ENVIAR INFORMACIÓN</button>
   </form>
 
   <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-dialog">
   <p>Estás a punto de enviar el formulario sin todos los datos completos. ¿Continuar?</p>
   <div class="confirm-buttons">
-  <button type="button" onclick="confirmarEnvio()">Continuar</button>
+  <button type="button" onclick="enviarDatosAlServidor()">Continuar</button>
   <button type="button" onclick="cancelarEnvio()">Cancelar</button>
   </div>
   </div>
@@ -153,61 +136,50 @@
   <script>
   const roles = [
   "Piloto",
-  "Copiloto",
+  "Propietario",
   "Jefe de Equipo",
   "Mecánico 1",
   "Mecánico 2",
-  "Ingeniero",
-  "Logística",
-  "Prensa",
+  "Mecánico 3",
+  "Operador 1",
+  "Operador 2",
   "Invitado 1",
   "Invitado 2",
-  "Otro 1",
-  "Otro 2",
+  "Menor 1",
+  "Menor 2",
   ];
 
   const nombreEquipo = localStorage.getItem("nombreEquipo") || "Sin nombre";
-  const nombreResponsable = localStorage.getItem("nombreResponsable") || "Sin responsable";
-  const numeroAuto = localStorage.getItem("numeroAuto") || "Sin número";
+  document.getElementById("bienvenida").innerText = "Bienvenido Equipo " + nombreEquipo;
 
-  document.getElementById("bienvenida").textContent = `Equipo: ${nombreEquipo} - Responsable: ${nombreResponsable} - Auto: ${numeroAuto}`;
+  const tabla = document.getElementById("tablaCuerpo");
+  const confirmOverlay = document.getElementById("confirmOverlay"); // Mantener la referencia
 
-  const tablaCuerpo = document.getElementById("tablaCuerpo");
-  const confirmOverlay = document.getElementById("confirmOverlay");
-
-  // Función para crear las filas de la tabla dinámicamente
-  function crearFilasTabla() {
-  roles.forEach((rol) => {
+  // Crear filas dinámicamente
+  roles.forEach((rol, i) => {
   const fila = document.createElement("tr");
 
-  const celdaRol = document.createElement("td");
-  celdaRol.textContent = rol;
-  fila.appendChild(celdaRol);
+  const tdRol = document.createElement("td");
+  tdRol.textContent = rol;
+  fila.appendChild(tdRol);
 
-  for (let i = 0; i < 5; i++) {
-  const celda = document.createElement("td");
+  for (let j = 0; j < 5; j++) {
+  const td = document.createElement("td");
   const input = document.createElement("input");
-  input.type = "text";
-  input.name = `<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}`; // Nombre para identificar el campo
-  celda.appendChild(input);
-  fila.appendChild(celda);
+  input.name = `<span class="math-inline">\{rol\}\_campo</span>{j}`;
+  td.appendChild(input);
+  fila.appendChild(td);
   }
 
-  tablaCuerpo.appendChild(fila);
+  tabla.appendChild(fila);
   });
-  }
-
-  crearFilasTabla(); // Llama a la función para generar las filas
-
-  let datosFormulario; // Variable global para almacenar los datos del formulario
 
   function validarYEnviar() {
-  console.log("validarYEnviar() llamada");
   const inputs = document.querySelectorAll("input");
   let algunoVacio = false;
 
   inputs.forEach((input) => {
-  if (!input.value.trim()) {
+  if (input.value.trim() === "") {
   input.classList.add("invalid");
   algunoVacio = true;
   } else {
@@ -216,90 +188,66 @@
   });
 
   if (algunoVacio) {
-  console.log("Campos vacíos detectados, mostrando confirmación");
-  mostrarConfirmacion();
+  document.getElementById("advertenciaCampos").style.display = "block";
+  // Si quieres usar el diálogo de confirmación, llama a mostrarConfirmacion() aquí
+  // mostrarConfirmacion();
   } else {
-  console.log("No hay campos vacíos, enviando formulario");
-  enviarDatosAlServidor(); // Llamar a la función correcta
+  enviarDatosAlServidor(); // Llama directamente a la función de envío
   }
   }
 
   function mostrarConfirmacion() {
-  console.log("mostrarConfirmacion() llamada");
   confirmOverlay.style.display = "flex";
   }
 
   function cancelarEnvio() {
-  console.log("cancelarEnvio() llamada");
   confirmOverlay.style.display = "none";
   }
 
   function confirmarEnvio() {
-  console.log("confirmarEnvio() llamada");
   confirmOverlay.style.display = "none";
-  enviarDatosAlServidor(); // Llamar a la función correcta
+  enviarDatosAlServidor();
   }
 
   function enviarDatosAlServidor() {
-  console.log("enviarDatosAlServidor() llamada");
-  const input = document.querySelector(`input[name="${rol.replace(" ", "_")}_${i}"]`);
+  const inputs = document.querySelectorAll("input");
   const miembros = [];
 
-  roles.forEach((rol) => {
-  const camposRol = [];
-  for (let i = 0; i < 5; i++) {
-  // Corregido: Usar backticks para la interpolación
-  const input = document.querySelector(`input[name="<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}"]`);
-  if (input) {
-  camposRol.push(input.value.trim());
-  } else {
-  console.error(`No se encontró el input con el nombre: input[name="<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}"]`);
-  return;
-  }
-  }
+  for (let i = 0; i < roles.length; i++) {
+  const base = i * 5;
   miembros.push({
-  rol: rol,
-  nombre: camposRol[0],
-  apellidoPaterno: camposRol[1],
-  apellidoMaterno: camposRol[2],
-  noHardCard: camposRol[3],
-  email: camposRol[4],
+  rol: roles[i],
+  nombre: inputs[base].value,
+  apellidoP: inputs[base + 1].value,
+  apellidoM: inputs[base + 2].value,
+  hardCard: inputs[base + 3].value,
+  email: inputs[base + 4].value,
   });
-  });
+  }
 
   const datos = {
   nombreEquipo: nombreEquipo,
-  nombreResponsable: nombreResponsable,
-  numeroAuto: numeroAuto,
   miembros: miembros,
   };
 
-  datosFormulario = datos;
-
-  console.log("Datos a enviar:", JSON.stringify(datos, null, 2));
-
-  fetch("https://script.google.com/macros/s/AKfycbwWVn9K6plT6XX5K4mE_aJHom6CXyk_aZXSkyX54425nrs1hRPnafZKLrUssc9DqbV4/exec", { // Asegúrate de que esta URL sea correcta
+  fetch(
+  "https://script.google.com/macros/s/AKfycbwWVn9K6plT6XX5K4mE_aJHom6CXyk_aZXSkyX54425nrs1hRPnafZKLrUssc9DqbV4/exec",
+  {
   method: "POST",
+  body: JSON.stringify(datos),
   headers: {
   "Content-Type": "application/json",
   },
-  body: JSON.stringify(datos),
-  })
-  .then((response) => response.json())
-  .then((data) => {
-  console.log("Respuesta del servidor:", data);
-  if (data.result === "success") {
-  localStorage.removeItem("nombreEquipo");
-  localStorage.removeItem("nombreResponsable");
-  localStorage.removeItem("numeroAuto");
-  window.location.href = "confirmacion.html";
-  } else {
-  alert("Error al guardar los datos: " + data.error);
   }
+  )
+  .then((res) => res.text())
+  .then((msg) => {
+  localStorage.clear();
+  window.location.href = "confirmacion.html";
   })
-  .catch((error) => {
-  console.error("Error:", error);
-  alert("Error al enviar los datos.");
+  .catch((err) => {
+  console.error("Error al enviar:", err);
+  alert("Hubo un error al enviar los datos.");
   });
   }
   </script>
