@@ -241,56 +241,62 @@
   const miembros = [];
 
   roles.forEach((rol) => {
-  const camposRol = [];
-  for (let i = 0; i < 5; i++) {
-  const input = document.querySelector(`input[name="<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}"]`);
-  camposRol.push(input.value.trim());
-  }
-  miembros.push({
-  rol: rol,
-  nombre: camposRol[0],
-  apellidoPaterno: camposRol[1],
-  apellidoMaterno: camposRol[2],
-  noHardCard: camposRol[3],
-  email: camposRol[4],
-  });
+   const camposRol = [];
+   for (let i = 0; i < 5; i++) {
+    // Correcto: Usar plantillas literales para interpolar las variables
+    const input = document.querySelector(`input[name="<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}"]`);
+    if (input) { // Añadir una verificación para asegurarse de que el elemento existe
+     camposRol.push(input.value.trim());
+    } else {
+     console.error(`No se encontró el input con el nombre: input[name="<span class="math-inline">\{rol\.replace\(" ", "\_"\)\}\_</span>{i}"]`);
+     return; // Detener si no se encuentra el input (para evitar más errores)
+    }
+   }
+   miembros.push({
+    rol: rol,
+    nombre: camposRol[0],
+    apellidoPaterno: camposRol[1],
+    apellidoMaterno: camposRol[2],
+    noHardCard: camposRol[3],
+    email: camposRol[4],
+   });
   });
 
   const datos = {
-  nombreEquipo: nombreEquipo,
-  nombreResponsable: nombreResponsable,
-  numeroAuto: numeroAuto,
-  miembros: miembros,
+   nombreEquipo: nombreEquipo,
+   nombreResponsable: nombreResponsable,
+   numeroAuto: numeroAuto,
+   miembros: miembros,
   };
 
   datosFormulario = datos;
 
   console.log("Datos a enviar:", JSON.stringify(datos, null, 2));
 
-  fetch("https://script.google.com/macros/s/AKfycbwWVn9K6plT6XX5K4mE_aJHom6CXyk_aZXSkyX54425nrs1hRPnafZKLrUssc9DqbV4/exec", {
-  method: "POST",
-  headers: {
-  "Content-Type": "application/json",
-  },
-  body: JSON.stringify(datos),
+  fetch("TU_URL_DE_APPS_SCRIPT", { // Asegúrate de que esta URL sea correcta
+   method: "POST",
+   headers: {
+    "Content-Type": "application/json",
+   },
+   body: JSON.stringify(datos),
   })
   .then((response) => response.json())
   .then((data) => {
-  console.log("Respuesta del servidor:", data);
-  if (data.result === "success") {
-  localStorage.removeItem("nombreEquipo");
-  localStorage.removeItem("nombreResponsable");
-  localStorage.removeItem("numeroAuto");
-  window.location.href = "confirmacion.html";
-  } else {
-  alert("Error al guardar los datos: " + data.error);
-  }
+   console.log("Respuesta del servidor:", data);
+   if (data.result === "success") {
+    localStorage.removeItem("nombreEquipo");
+    localStorage.removeItem("nombreResponsable");
+    localStorage.removeItem("numeroAuto");
+    window.location.href = "confirmacion.html";
+   } else {
+    alert("Error al guardar los datos: " + data.error);
+   }
   })
   .catch((error) => {
-  console.error("Error:", error);
-  alert("Error al enviar los datos.");
+   console.error("Error:", error);
+   alert("Error al enviar los datos.");
   });
-  }
+ }
   </script>
  </body>
  </html>
