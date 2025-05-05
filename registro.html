@@ -242,7 +242,7 @@
 
   function enviarDatosAlServidor() {
   console.log("enviarDatosAlServidor() llamada");
-  const inputs = document.querySelectorAll("input");
+  const input = document.querySelector(`input[name="${rol.replace(" ", "_")}_${i}"]`);
   const miembros = [];
 
   roles.forEach((rol) => {
