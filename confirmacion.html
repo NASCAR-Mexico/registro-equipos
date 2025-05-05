@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+ <html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <title>Información Recibida</title>
+  <style>
+  body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  text-align: center;
+  padding: 50px;
+  }
+
+  .container {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 600px;
+  }
+
+  /* Estilos para los logos */
+  .logo-top {
+  width: 150px;
+  margin-bottom: 20px;
+  }
+
+  .logo-bottom {
+  width: 150px;
+  margin-top: 20px;
+  }
+
+  h1 {
+  color: #007BFF;
+  }
+
+  p {
+  font-size: 18px;
+  color: #333;
+  }
+  </style>
+ </head>
+ <body>
+
+  <div class="container">
+  <img src="logocarreramx.png" alt="Logo Arriba" class="logo-top">
+
+  <h1>Información Recibida</h1>
+  <p id="mensajeConfirmacion"></p>
+
+  <img src="logo.png" alt="Logo Abajo" class="logo-bottom">
+  </div>
+
+  <script>
+  const nombreResponsable = localStorage.getItem("nombreResponsable") || "Desconocido";
+  const nombreEquipo = localStorage.getItem("nombreEquipo") || "Desconocido";
+  const numeroAuto = localStorage.getItem("numeroAuto") || "Desconocido";
+
+  const mensaje = `
+   Información Recibida:
+   <br><br>
+   Responsable del llenado: <b><span class="math-inline">\{nombreResponsable\}</b\>
+<br\>
+Equipo\: <b\></span>{nombreEquipo}</b>
+   <br>
+   Auto: <b>${numeroAuto}</b>
+   <br><br>
+   Quedó registrado.
+  `;
+
+  document.getElementById("mensajeConfirmacion").innerHTML = mensaje;
+
+  // Limpiar los datos de localStorage (opcional, ya se hace en registro.html)
+  localStorage.removeItem("nombreEquipo");
+  localStorage.removeItem("nombreResponsable");
+  localStorage.removeItem("numeroAuto");
+
+  // Evitar que el usuario vuelva atrás con el botón del navegador
+  history.pushState(null, document.title, location.href);
+  window.addEventListener('popstate', function(event) {
+  history.pushState(null, document.title, location.href);
+  });
+  </script>
+
+ </body>
+ </html>
