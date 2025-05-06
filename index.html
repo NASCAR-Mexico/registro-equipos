@@ -43,12 +43,16 @@
     button:hover {
       background-color: #0056b3;
     }
+    .sponsor-image {
+      margin-top: 20px;
+      max-width: 100%; /* Asegura que la imagen no se desborde */
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- El logo ahora está centrado y con un margen debajo -->
+    <!-- El logo centrado en la parte superior -->
     <img src="logo.PNG" alt="Logotipo Empresa">
     <h2>Registro de Equipo</h2>
 
@@ -57,6 +61,9 @@
     <input type="text" id="numeroAuto" placeholder="Número de Auto" required>
 
     <button onclick="guardarYContinuar()">Siguiente</button>
+
+    <!-- Imagen de patrocinadores al final, debajo del botón -->
+    <img class="sponsor-image" src="barrapatrocinadores.png" alt="Patrocinadores">
   </div>
 
   <script>
