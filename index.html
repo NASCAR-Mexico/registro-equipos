@@ -1,87 +1,87 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
- <meta charset="UTF-8">
- <title>Registro de Equipo</title>
- <style>
-  body {
-   font-family: Arial, sans-serif;
-   background-color: #f2f2f2;
-   text-align: center;
-   padding: 50px;
-  }
+  <meta charset="UTF-8">
+  <title>Registro de Equipo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      text-align: center;
+      padding: 50px;
+    }
 
-  .container {
-   background: #fff;
-   padding: 30px;
-   max-width: 500px;
-   margin: auto;
-   border-radius: 10px;
-   box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
+    .container {
+      background: #fff;
+      padding: 30px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
 
-  img {
-   max-width: 200px;
-   margin-bottom: 20px;
-  }
+    img {
+      max-width: 200px;
+      margin-bottom: 20px;
+    }
 
-  input {
-   width: 100%;
-   padding: 10px;
-   margin: 10px 0;
-   font-size: 16px;
-   box-sizing: border-box;
-  }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
 
-  button {
-   background-color: #007BFF;
-   color: white;
-   padding: 12px;
-   width: 100%;
-   font-size: 16px;
-   border: none;
-   border-radius: 5px;
-   cursor: pointer;
-  }
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
 
-  button:hover {
-   background-color: #0056b3;
-  }
- </style>
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
 
- <div class="container">
-  <img src="logo.PNG" alt="Logotipo Empresa">
-  <h2>Registro de Equipo</h2>
+  <div class="container">
+    <img src="logo.PNG" alt="Logotipo Empresa">
+    <h2>Registro de Equipo</h2>
 
-  <input type="text" id="nombreEquipo" placeholder="Nombre del Equipo" required>
-  <input type="text" id="nombreResponsable" placeholder="Nombre del Responsable" required>
-  <input type="text" id="numeroAuto" placeholder="Número de Auto" required>
+    <input type="text" id="nombreEquipo" placeholder="Nombre del Equipo" required>
+    <input type="text" id="nombreResponsable" placeholder="Nombre del Responsable" required>
+    <input type="number" id="numeroAuto" placeholder="Número de Auto" required min="1">
 
-  <button onclick="guardarYContinuar()">Siguiente</button>
- </div>
+    <button onclick="guardarYContinuar()">Siguiente</button>
+  </div>
 
- <script>
-  function guardarYContinuar() {
-   const nombreEquipo = document.getElementById("nombreEquipo").value.trim();
-   const nombreResponsable = document.getElementById("nombreResponsable").value.trim();
-   const numeroAuto = document.getElementById("numeroAuto").value.trim();
+  <script>
+    function guardarYContinuar() {
+      const nombreEquipo = document.getElementById("nombreEquipo").value.trim();
+      const nombreResponsable = document.getElementById("nombreResponsable").value.trim();
+      const numeroAuto = document.getElementById("numeroAuto").value.trim();
 
-   if (!nombreEquipo || !nombreResponsable || !numeroAuto) {
-    alert("Por favor, completa todos los campos.");
-    return;
-   }
+      if (!nombreEquipo || !nombreResponsable || !numeroAuto) {
+        alert("Por favor, completa todos los campos.");
+        return;
+      }
 
-   // Guardar temporalmente la info del equipo en el navegador
-   localStorage.setItem("nombreEquipo", nombreEquipo);
-   localStorage.setItem("nombreResponsable", nombreResponsable);
-   localStorage.setItem("numeroAuto", numeroAuto);
+      // Guardar en localStorage para usar en registro.html
+      localStorage.setItem("nombreEquipo", nombreEquipo);
+      localStorage.setItem("nombreResponsable", nombreResponsable);
+      localStorage.setItem("numeroAuto", numeroAuto);
 
-   // Ir a la segunda página
-   window.location.href = "registro.html";
-  }
- </script>
+      // Redirigir al siguiente formulario
+      window.location.href = "registro.html";
+    }
+  </script>
 
 </body>
 </html>
