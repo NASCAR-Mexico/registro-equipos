@@ -10,7 +10,6 @@
       text-align: center;
       padding: 50px;
     }
-
     .container {
       background: #fff;
       padding: 30px;
@@ -19,20 +18,18 @@
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-
     img {
-      max-width: 200px;
-      margin-bottom: 20px;
+      max-width: 150px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
     }
-
     input {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
       font-size: 16px;
-      box-sizing: border-box;
     }
-
     button {
       background-color: #007BFF;
       color: white;
@@ -43,7 +40,6 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
     button:hover {
       background-color: #0056b3;
     }
@@ -51,13 +47,13 @@
 </head>
 <body>
 
+  <img src="logo.PNG" alt="Logotipo Empresa">
   <div class="container">
-    <img src="logo.PNG" alt="Logotipo Empresa">
     <h2>Registro de Equipo</h2>
 
     <input type="text" id="nombreEquipo" placeholder="Nombre del Equipo" required>
     <input type="text" id="nombreResponsable" placeholder="Nombre del Responsable" required>
-    <input type="number" id="numeroAuto" placeholder="Número de Auto" required min="1">
+    <input type="text" id="numeroAuto" placeholder="Número de Auto" required>
 
     <button onclick="guardarYContinuar()">Siguiente</button>
   </div>
@@ -73,13 +69,24 @@
         return;
       }
 
-      // Guardar en localStorage para usar en registro.html
-      localStorage.setItem("nombreEquipo", nombreEquipo);
-      localStorage.setItem("nombreResponsable", nombreResponsable);
-      localStorage.setItem("numeroAuto", numeroAuto);
-
-      // Redirigir al siguiente formulario
-      window.location.href = "registro.html";
+      // Validar con Apps Script si el número ya existe
+      fetch(`TU_URL_DEL_SCRIPT?numeroAuto=${encodeURIComponent(numeroAuto)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.exists) {
+            alert("⚠️ El número de auto ya ha sido registrado.");
+          } else {
+            // Guardar en localStorage y continuar
+            localStorage.setItem("nombreEquipo", nombreEquipo);
+            localStorage.setItem("nombreResponsable", nombreResponsable);
+            localStorage.setItem("numeroAuto", numeroAuto);
+            window.location.href = "registro.html";
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Error al validar el número de auto.");
+        });
     }
   </script>
 
