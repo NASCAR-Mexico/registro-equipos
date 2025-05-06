@@ -70,7 +70,7 @@
       }
 
       // Validar con Apps Script si el número ya existe
-      fetch(`TU_URL_DEL_SCRIPT?numeroAuto=${encodeURIComponent(numeroAuto)}`)
+      fetch(`https://script.google.com/macros/s/AKfycbwpH0giGdSCT53sw0pmdEGxmkehAnEkyh1hS-tTzvhkjxij2xtsGLZAJYwgNNJPl8TQ/exec?numeroAuto=${encodeURIComponent(numeroAuto)}`)
         .then(res => res.json())
         .then(data => {
           if (data.exists) {
