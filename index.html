@@ -10,6 +10,7 @@
       text-align: center;
       padding: 50px;
     }
+
     .container {
       background: #fff;
       padding: 30px;
@@ -19,20 +20,20 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       position: relative;
     }
+
     .logo {
-      max-width: 150px;
-      margin: 0 auto;
       display: block;
+      margin: 0 auto 20px;
+      max-width: 150px;
     }
-    h2 {
-      margin-top: 30px;
-    }
+
     input {
       width: 100%;
       padding: 10px;
       margin: 10px 0;
       font-size: 16px;
     }
+
     button {
       background-color: #007BFF;
       color: white;
@@ -43,16 +44,23 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #0056b3;
+    }
+
+    .barra-patrocinadores {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 100%;
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- Logotipo centrado -->
-    <img class="logo" src="logo.PNG" alt="Logotipo Empresa">
+    <img src="logo.PNG" alt="Logotipo Empresa" class="logo">
+
     <h2>Registro de Equipo</h2>
 
     <input type="text" id="nombreEquipo" placeholder="Nombre del Equipo" required>
@@ -60,6 +68,8 @@
     <input type="text" id="numeroAuto" placeholder="Número de Auto" required>
 
     <button onclick="guardarYContinuar()">Siguiente</button>
+
+    <img src="barrapatrocinadores.png" alt="Patrocinadores" class="barra-patrocinadores">
   </div>
 
   <script>
@@ -73,19 +83,15 @@
         return;
       }
 
-      // Validar con Apps Script si el número ya existe
-      fetch(`https://script.google.com/macros/s/AKfycbwpH0giGdSCT53sw0pmdEGxmkehAnEkyh1hS-tTzvhkjxij2xtsGLZAJYwgNNJPl8TQ/exec?numeroAuto=${encodeURIComponent(numeroAuto)}`, {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*',  // Habilitar CORS
-        }
-      })
+      // ⚠️ Reemplaza esta URL con la tuya del Web App
+      const scriptURL = "https://script.google.com/macros/s/AKfycbx7RiIm4fkFnLjaiNNWI81CcZG-Nm57YHuHad9XbdbbSs99F4MdzoJW8I6soKs0M7dEag/exec";
+
+      fetch(`${scriptURL}?numeroAuto=${encodeURIComponent(numeroAuto)}`)
         .then(res => res.json())
         .then(data => {
           if (data.exists) {
             alert("⚠️ El número de auto ya ha sido registrado.");
           } else {
-            // Guardar en localStorage y continuar
             localStorage.setItem("nombreEquipo", nombreEquipo);
             localStorage.setItem("nombreResponsable", nombreResponsable);
             localStorage.setItem("numeroAuto", numeroAuto);
@@ -101,3 +107,4 @@
 
 </body>
 </html>
+
