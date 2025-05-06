@@ -17,6 +17,7 @@
       margin: auto;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative; /* Esto permite posicionar el logotipo dentro del contenedor */
     }
     img {
       max-width: 150px;
@@ -47,8 +48,9 @@
 </head>
 <body>
 
-  <img src="logo.PNG" alt="Logotipo Empresa">
   <div class="container">
+    <!-- El logo ahora estará dentro de este contenedor -->
+    <img src="logo.PNG" alt="Logotipo Empresa">
     <h2>Registro de Equipo</h2>
 
     <input type="text" id="nombreEquipo" placeholder="Nombre del Equipo" required>
