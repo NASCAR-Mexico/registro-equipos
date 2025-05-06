@@ -2,33 +2,48 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro de Miembros del Equipo</title>
+  <title>Miembros del Equipo</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      text-align: center;
+      padding: 50px;
+    }
+
+    .container {
+      background: #fff;
       padding: 30px;
-      background-color: #f9f9f9;
+      max-width: 700px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      max-width: 150px;
     }
 
     h2 {
-      color: #333;
+      margin-bottom: 10px;
     }
 
-    .warning {
-      color: red;
-      margin-top: 10px;
-      display: none;
+    .equipo-info {
+      font-weight: bold;
+      margin-bottom: 20px;
     }
 
     table {
       width: 100%;
+      margin-bottom: 20px;
       border-collapse: collapse;
-      margin-top: 20px;
     }
 
     th, td {
       padding: 8px;
-      border: 1px solid #ddd;
       text-align: left;
     }
 
@@ -38,156 +53,132 @@
       box-sizing: border-box;
     }
 
-    input.invalid {
-      border: 2px solid red;
-    }
-
     button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #007BFF;
+      background-color: #28a745;
       color: white;
+      padding: 12px;
       font-size: 16px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      width: 100%;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background-color: #218838;
     }
 
-    .notice {
-      font-size: 14px;
-      color: gray;
-      margin-top: 10px;
+    .barra-patrocinadores {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 100%;
     }
   </style>
 </head>
 <body>
 
-  <h2 id="bienvenida">Bienvenido Equipo</h2>
-  <p>Registro de Miembros del Equipo. Por favor, llena todos los campos. Los nombres y apellidos deben coincidir con la identificación oficial.</p>
+  <div class="container">
+    <img src="logo.PNG" alt="Logotipo Empresa" class="logo">
 
-  <div class="warning" id="advertenciaCampos">⚠️ Por favor, completa todos los campos.</div>
+    <h2>Miembros del Equipo</h2>
+    <div class="equipo-info" id="infoEquipo"></div>
 
-  <form id="formRegistro">
-    <table>
-      <thead>
+    <form id="formMiembros">
+      <table id="tablaMiembros">
         <tr>
           <th>Rol</th>
           <th>Nombre</th>
           <th>Apellido Paterno</th>
           <th>Apellido Materno</th>
           <th>No. Hard Card</th>
-          <th>Correo Electrónico</th>
+          <th>Email</th>
         </tr>
-      </thead>
-      <tbody id="tablaCuerpo">
-        <!-- Aquí se crearán las filas dinámicamente -->
-      </tbody>
-    </table>
+        <!-- 5 filas por default -->
+        ${[...Array(5)].map((_, i) => `
+        <tr>
+          <td><input type="text" name="rol${i}"></td>
+          <td><input type="text" name="nombre${i}"></td>
+          <td><input type="text" name="apellidoPaterno${i}"></td>
+          <td><input type="text" name="apellidoMaterno${i}"></td>
+          <td><input type="text" name="noHardCard${i}"></td>
+          <td><input type="email" name="email${i}"></td>
+        </tr>`).join("")}
+      </table>
 
-    <button type="button" onclick="validarYEnviar()">Enviar Información</button>
-  </form>
+      <button type="button" onclick="enviarRegistro()">Enviar Registro</button>
+    </form>
+
+    <img src="barrapatrocinadores.png" alt="Patrocinadores" class="barra-patrocinadores">
+  </div>
 
   <script>
-    const roles = [
-      "Piloto", "Copiloto", "Jefe de Equipo", "Mecánico 1", "Mecánico 2", "Ingeniero", "Logística", "Prensa", "Invitado 1", "Invitado 2", "Otro 1", "Otro 2"
-    ];
-
+    // Cargar datos guardados
     const nombreEquipo = localStorage.getItem("nombreEquipo");
     const nombreResponsable = localStorage.getItem("nombreResponsable");
     const numeroAuto = localStorage.getItem("numeroAuto");
 
-    document.getElementById("bienvenida").textContent = `Equipo: ${nombreEquipo} - Responsable: ${nombreResponsable} - Auto: ${numeroAuto}`;
-
-    const tablaCuerpo = document.getElementById("tablaCuerpo");
-
-    // Crear las filas de la tabla dinámicamente
-    roles.forEach(rol => {
-      const fila = document.createElement("tr");
-
-      const celdaRol = document.createElement("td");
-      celdaRol.textContent = rol;
-      fila.appendChild(celdaRol);
-
-      for (let i = 0; i < 5; i++) {
-        const celda = document.createElement("td");
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = `${rol.replace(" ", "_")}_${i}`; // Asignar nombre para identificar los campos
-        celda.appendChild(input);
-        fila.appendChild(celda);
-      }
-
-      tablaCuerpo.appendChild(fila);
-    });
-
-    function validarYEnviar() {
-      const inputs = document.querySelectorAll("input");
-      let algunoVacio = false;
-
-      inputs.forEach((input) => {
-        if (!input.value.trim()) {
-          input.classList.add("invalid");
-          algunoVacio = true;
-        } else {
-          input.classList.remove("invalid");
-        }
-      });
-
-      if (algunoVacio) {
-        alert("⚠️ Por favor, completa todos los campos.");
-      } else {
-        enviarFormulario();
-      }
+    if (!nombreEquipo || !nombreResponsable || !numeroAuto) {
+      alert("Faltan datos del equipo. Redirigiendo al inicio.");
+      window.location.href = "index.html";
     }
 
-    function enviarFormulario() {
-      const inputs = document.querySelectorAll("input");
+    document.getElementById("infoEquipo").innerText = 
+      `Equipo: ${nombreEquipo} | Responsable: ${nombreResponsable} | Auto: ${numeroAuto}`;
+
+    function enviarRegistro() {
       const miembros = [];
-
-      roles.forEach(rol => {
-        const camposRol = [];
-        for (let i = 0; i < 5; i++) {
-          const input = document.querySelector(`input[name="${rol.replace(" ", "_")}_${i}"]`);
-          camposRol.push(input.value.trim());
+      const filas = document.querySelectorAll("#tablaMiembros tr");
+      
+      for (let i = 1; i < filas.length; i++) {
+        const inputs = filas[i].querySelectorAll("input");
+        if (inputs[0].value.trim()) {
+          miembros.push({
+            rol: inputs[0].value.trim(),
+            nombre: inputs[1].value.trim(),
+            apellidoPaterno: inputs[2].value.trim(),
+            apellidoMaterno: inputs[3].value.trim(),
+            noHardCard: inputs[4].value.trim(),
+            email: inputs[5].value.trim()
+          });
         }
-        miembros.push({
-          rol: rol,
-          nombre: camposRol[0],
-          apellidoPaterno: camposRol[1],
-          apellidoMaterno: camposRol[2],
-          noHardCard: camposRol[3],
-          email: camposRol[4],
-        });
-      });
+      }
 
-      const datos = {
+      if (miembros.length === 0) {
+        alert("Debes ingresar al menos un miembro.");
+        return;
+      }
+
+      const payload = {
         nombreEquipo,
         nombreResponsable,
         numeroAuto,
-        miembros,
+        miembros
       };
 
-      fetch("https://script.google.com/macros/s/AKfycbwpH0giGdSCT53sw0pmdEGxmkehAnEkyh1hS-tTzvhkjxij2xtsGLZAJYwgNNJPl8TQ/exec", {  // Reemplaza con la URL de tu Google Apps Script
+      // ⚠️ Reemplaza con tu URL de Apps Script
+      const scriptURL = "https://script.google.com/macros/s/AKfycbwpH0giGdSCT53sw0pmdEGxmkehAnEkyh1hS-tTzvhkjxij2xtsGLZAJYwgNNJPl8TQ/exec";
+
+      fetch(scriptURL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datos),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.result === "success") {
-          localStorage.removeItem("nombreEquipo");
-          localStorage.removeItem("nombreResponsable");
-          localStorage.removeItem("numeroAuto");
-          window.location.href = "confirmacion.html"; // Redirige a la confirmación
-        } else {
-          alert(`⚠️ Error: ${data.error}`);
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json"
         }
       })
-      .catch(error => alert("⚠️ Error al enviar los datos."));
+        .then(res => res.json())
+        .then(data => {
+          if (data.result === "success") {
+            alert("Registro exitoso.");
+            localStorage.clear();
+            window.location.href = "index.html";
+          } else {
+            alert("Error: " + data.error);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Ocurrió un error al enviar el registro.");
+        });
     }
   </script>
 
