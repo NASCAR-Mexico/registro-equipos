@@ -1,102 +1,64 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Registro de Equipo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-      text-align: center;
-      padding: 50px;
-    }
-    .container {
-      background: #fff;
-      padding: 30px;
-      max-width: 500px;
-      margin: auto;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      position: relative; /* Esto permite posicionar el logotipo dentro del contenedor */
-    }
-    img {
-      max-width: 150px;
-      display: block;
-      margin: 0 auto 20px; /* Centra el logotipo y le da un margen inferior */
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      font-size: 16px;
-    }
-    button {
-      background-color: #007BFF;
-      color: white;
-      padding: 12px;
-      width: 100%;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .sponsor-image {
-      margin-top: 20px;
-      max-width: 100%; /* Asegura que la imagen no se desborde */
-    }
-  </style>
-</head>
-<body>
+function doGet(e) { 
+  const numeroAuto = e.parameter.numeroAuto;
+  const hojaExistente = verificarSiExisteHoja(numeroAuto);
 
-  <div class="container">
-    <!-- El logo centrado en la parte superior -->
-    <img src="logo.PNG" alt="Logotipo Empresa">
-    <h2>Registro de Equipo</h2>
+  // Agregar encabezado CORS
+  return ContentService.createTextOutput(
+    JSON.stringify({ exists: hojaExistente }),
+    ContentService.MimeType.JSON
+  ).setMimeType(ContentService.MimeType.JSON)
+   .setHeaders({ 'Access-Control-Allow-Origin': '*' });
+}
 
-    <input type="text" id="nombreEquipo" placeholder="Nombre del Equipo" required>
-    <input type="text" id="nombreResponsable" placeholder="Nombre del Responsable" required>
-    <input type="text" id="numeroAuto" placeholder="Número de Auto" required>
+function doPost(e) {
+  const datos = JSON.parse(e.postData.contents);
+  const nombreEquipo = datos.nombreEquipo;
+  const nombreResponsable = datos.nombreResponsable;
+  const numeroAuto = datos.numeroAuto;
+  const miembros = datos.miembros;
 
-    <button onclick="guardarYContinuar()">Siguiente</button>
+  // Verificar si ya existe la hoja
+  const hojaExistente = verificarSiExisteHoja(numeroAuto);
 
-    <!-- Imagen de patrocinadores al final, debajo del botón -->
-    <img class="sponsor-image" src="barrapatrocinadores.png" alt="Patrocinadores">
-  </div>
+  if (hojaExistente) {
+    return ContentService.createTextOutput(
+      JSON.stringify({ result: 'error', error: 'El número de auto ya está registrado.' }),
+      ContentService.MimeType.JSON
+    ).setHeaders({ 'Access-Control-Allow-Origin': '*' });
+  }
 
-  <script>
-    function guardarYContinuar() {
-      const nombreEquipo = document.getElementById("nombreEquipo").value.trim();
-      const nombreResponsable = document.getElementById("nombreResponsable").value.trim();
-      const numeroAuto = document.getElementById("numeroAuto").value.trim();
+  // Crear nueva hoja para el equipo
+  const hoja = crearHoja(numeroAuto);
+  
+  // Agregar encabezados
+  hoja.appendRow(['Rol', 'Nombre', 'Apellido Paterno', 'Apellido Materno', 'No. Hard Card', 'Correo Electrónico']);
+  
+  // Agregar los miembros del equipo
+  miembros.forEach(miembro => {
+    hoja.appendRow([miembro.rol, miembro.nombre, miembro.apellidoPaterno, miembro.apellidoMaterno, miembro.noHardCard, miembro.email]);
+  });
 
-      if (!nombreEquipo || !nombreResponsable || !numeroAuto) {
-        alert("Por favor, completa todos los campos.");
-        return;
-      }
+  return ContentService.createTextOutput(
+    JSON.stringify({ result: 'success' }),
+    ContentService.MimeType.JSON
+  ).setHeaders({ 'Access-Control-Allow-Origin': '*' });
+}
 
-      // Validar con Apps Script si el número ya existe
-      fetch(`https://script.google.com/macros/s/AKfycbwpH0giGdSCT53sw0pmdEGxmkehAnEkyh1hS-tTzvhkjxij2xtsGLZAJYwgNNJPl8TQ/exec?numeroAuto=${encodeURIComponent(numeroAuto)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.exists) {
-            alert("⚠️ El número de auto ya ha sido registrado.");
-          } else {
-            // Guardar en localStorage y continuar
-            localStorage.setItem("nombreEquipo", nombreEquipo);
-            localStorage.setItem("nombreResponsable", nombreResponsable);
-            localStorage.setItem("numeroAuto", numeroAuto);
-            window.location.href = "registro.html";
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Error al validar el número de auto.");
-        });
+// Función para verificar si existe una hoja con el número de auto
+function verificarSiExisteHoja(numeroAuto) {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  const hojas = libro.getSheets();
+  for (let i = 0; i < hojas.length; i++) {
+    if (hojas[i].getName() === numeroAuto) {
+      return true;
     }
-  </script>
+  }
+  return false;
+}
 
-</body>
-</html>
+// Función para crear una nueva hoja con el número de auto
+function crearHoja(numeroAuto) {
+  const libro = SpreadsheetApp.getActiveSpreadsheet();
+  const hoja = libro.insertSheet(numeroAuto); // Esto crea una hoja con el nombre del número de auto
+  return hoja;
+}
